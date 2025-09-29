@@ -1,87 +1,80 @@
-import { useState } from "react";
-import type { JSONRecord } from "../classes/types";
-import { Header } from "./Header";
+import { memo, useMemo } from "react";
+import type { Node } from "../constants/types";
+import Header from "./Header";
+import { getColumnNames } from "../utils/utils";
+import useData from "../hooks/useData";
 
-export function Item({
-  rowKey,
+const Item = memo(function Item({
+  node,
   columns,
-  data,
-  rowChildren,
-  padding,
+  level,
 }: {
-  rowKey: number;
+  node: Node;
   columns: string[];
-  data: object;
-  rowChildren: object;
-  padding: number;
+  level: number;
 }) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const keys =
-    rowChildren && typeof rowChildren === "object"
-      ? Object.keys(rowChildren as Record<string, any>)
-      : [];
-  const records = keys.length
-    ? (rowChildren as Record<string, any>)[keys[0]]?.records ?? []
-    : [];
-  const hasChildren = records.length > 0;
-  const childrensColumns = hasChildren
-    ? [
-        ...new Set(
-          ...records.map((item) => {
-            return Object.keys(item.data);
-          })
-        ),
-      ]
-    : [];
-  const bgColor = rowKey % 2 === 0 ? "bg-stone-700" : "bg-stone-800";
+  const { isExpanded, toggle, removeNode, getChildren } = useData();
+  const expanded = isExpanded(node.nodeID);
+  const children = getChildren(node.nodeID);
+  const childrensColumns = useMemo(() => {
+    if (!children || children.length === 0) return [];
+    return getColumnNames(children);
+  }, [children]);
 
   return (
     <>
-      <tr className="h-15 text-white" key={rowKey}>
-        {Array(padding)
-          .fill(0)
-          .map((_, index) => {
-            return <td key={index}></td>;
-          })}
-        <td
-          key="show-children"
-          className={`text-center ${bgColor}`}
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {hasChildren ? <button>{isOpen ? "🔽" : "▶️"}</button> : <></>}
-        </td>
-        {columns.map((column: string, index: number) => {
-          return (
-            <td
-              className={`text-center ${bgColor}`}
-              key={column}
+      <tr className="h-15 text-white">
+        <td className="text-center" style={{ paddingLeft: level * 50 }}>
+          {children.length > 0 ? (
+            <button
+              onClick={() => toggle(node.nodeID)}
+              aria-label={expanded ? "Open" : "Close"}
             >
-              {column in data ? data[column] : "-"}
-            </td>
-          );
-        })}
-        <td
-          key="delete"
-          className={`text-center ${bgColor} w-25`}
-        >
-          <button>❌</button>
+              {expanded ? "🔽" : "▶️"}
+            </button>
+          ) : null}
+        </td>
+
+        {columns.map((col) => (
+          <td
+            key={col}
+            className="text-center"
+            style={{ paddingLeft: level * 50 }}
+          >
+            {col in node.data ? node.data[col] : "-"}
+          </td>
+        ))}
+
+        <td className="text-center" style={{ paddingLeft: level * 50 }}>
+          <button
+            onClick={() => removeNode(node.nodeID)}
+            aria-label="Delete node"
+          >
+            ❌
+          </button>
         </td>
       </tr>
 
-      {hasChildren && isOpen && (
+      {children.length > 0 && expanded && (
         <>
-          <Header columns={childrensColumns} padding={padding + 1} bgColor={bgColor} />
-          {records.map((child: JSONRecord, index: number) => (
-            <Item
-              rowKey={index}
-              data={child.data}
-              rowChildren={child.children}
-              columns={childrensColumns}
-              padding={padding + 1}
-            />
-          ))}
+          <Header columns={childrensColumns} level={level + 1} />
+          {children?.map((ch) => {
+            if (ch) {
+              return (
+                <Item
+                  key={ch.nodeID}
+                  node={ch}
+                  columns={childrensColumns}
+                  level={level + 1}
+                />
+              );
+            }
+            return null;
+          })}
         </>
       )}
     </>
   );
-}
+});
+
+export default Item;

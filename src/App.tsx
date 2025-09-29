@@ -1,30 +1,24 @@
-import { Header } from "./components/Header";
-import { Item } from "./components/Item";
-import data from "./data/example-data.json";
+import Header from "./components/Header";
+import Item from "./components/Item";
 import "./index.css";
+import { getColumnNames } from "./utils/utils";
+import useData from "./hooks/useData";
 
-function App() {
-  const columns = [...new Set(...data.map(item => {
-    return Object.keys(item.data);
-  }))]
+const App = () => {
+  const { roots } = useData();
+  const columns = getColumnNames(roots);
   return (
-      <table className="w-full bg-stone-700">
-        <Header columns={columns} padding={0}/>
-        <tbody>
-          {data.map((item, index) => {
-            return (
-              <Item
-                rowKey={index}
-                columns={columns}
-                data={item.data}
-                rowChildren={item.children}
-                padding={0}
-              />
-            );
-          })}
-        </tbody>
-      </table>
+    <table className="w-full bg-stone-700">
+      <thead>
+        <Header columns={columns} level={0} />
+      </thead>
+      <tbody>
+        {roots.map((n) => (
+          <Item key={n.nodeID} node={n} columns={columns} level={0} />
+        ))}
+      </tbody>
+    </table>
   );
-}
+};
 
 export default App;
