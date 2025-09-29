@@ -1,5 +1,6 @@
 import { useCallback, useContext, useMemo } from "react"
 import { ACTIONS, DataContext } from "../constants/constants";
+import type { NodeID } from "../constants/types";
 
 const useData = () => {
     const context = useContext(DataContext);
@@ -14,11 +15,11 @@ const useData = () => {
         return Object.values(state.data).filter(n => n.parentID === null);
     }, [state.data])
 
-    const getNode = useCallback((id: string) => {
+    const getNode = useCallback((id: NodeID) => {
         return state.data[id];
     }, [state.data])
 
-    const getChildren = useCallback((id: string) => {
+    const getChildren = useCallback((id: NodeID) => {
         const node = state.data[id]
         if (node.childrenIDS.length > 0) {
             return node.childrenIDS.map(ch => {
@@ -28,16 +29,16 @@ const useData = () => {
         return [];
     }, [state.data])
     
-    const toggle = useCallback((id: string) => {
+    const toggle = useCallback((id: NodeID) => {
         dispatch({ type: ACTIONS.TOGGLE, payload: { id }})
     }, [dispatch]);
 
 
-    const removeNode = useCallback((id: string) => {
+    const removeNode = useCallback((id: NodeID) => {
         dispatch({ type: ACTIONS.REMOVE_NODE, payload: { id }})
     }, [dispatch]);
 
-    const isExpanded = useCallback((id: string) => {
+    const isExpanded = useCallback((id: NodeID) => {
         return Boolean(state.expanded[id]);
     }, [state.expanded])
 

@@ -17,8 +17,8 @@ export interface RawNode {
 export interface Node {
   nodeID: NodeID;
   data: Record<string, string | number | null>;
-  parentID: string | null;
-  childrenIDS: string[];
+  parentID: NodeID | null;
+  childrenIDS: NodeID[];
 }
 
 export interface State {

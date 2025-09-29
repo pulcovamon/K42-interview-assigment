@@ -4,7 +4,7 @@ import type { State, Action, NodeID, Node } from "../constants/types";
 const removeNode = (
   nodes: Record<NodeID, Node>,
   expanded: Record<NodeID, boolean>,
-  id: string
+  id: NodeID
 ) => {
   const idsToRemove = new Set<NodeID>();
 
