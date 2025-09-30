@@ -1,3 +1,19 @@
+# Koala42 Technical Assignment
+
+## Known issues
+
+- Input data are loaded only once during app start. With more time, I would add a button for uploading a custom JSON file from the UI.
+- Columns are defined only once and are not recalculated after deleting some nodes, so some columns may stay visible even if they are empty.
+- The design is not identical to the provided screenshot and sometimes the table layout looks a bit off (e.g. when expanding rows, some columns may shift).
+- There is no error handling for malformed or missing input data. Ideally, data would be validated and errors shown in the UI.
+
+## How to run
+
+```bash
+npm install
+npm run dev
+```
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
